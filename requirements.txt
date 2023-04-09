@@ -1,0 +1,6 @@
+numpy==1.24.2
+openai==0.27.0
+PyAudio==0.2.13
+pyvcroid2 @ git+https://github.com/Nkyoku/pyvcroid2@01d7e4b30e6b055f8cf1a3b0ad1c35d211754027
+requests==2.28.2
+SpeechRecognition==3.9.0

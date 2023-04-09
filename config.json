@@ -1,0 +1,22 @@
+{
+    "paramater":{
+        "volume":1,
+        "speed":1,
+        "pitch":1,
+        "emphasis":1,
+        "pause_middle":50,
+        "pause_long":100,
+        "pause_sentence":200,
+        "master_volume":1
+    },
+    "key":{
+        "A3RT":"-------------key---------------",
+        "openAI":"-----------key---------------"
+    },
+    "figure":{
+        "open":"figure/dummy.png",
+        "half":"figure/dummy.png",
+        "close":"figure/dummy.png"
+    },
+    "api":"openAI"
+}

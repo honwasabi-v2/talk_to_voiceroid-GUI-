@@ -20,7 +20,7 @@ def recording():
     audio = pyaudio.PyAudio()
     RATE = 44100
     
-    SILENT = 0.5    #無音終了時間
+    SILENT = 0.6    #無音終了時間
     threshold = 0.1 # 閾値 
     
     print("recording......")

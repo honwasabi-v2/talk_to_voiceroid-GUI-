@@ -271,7 +271,7 @@ class w_talk:
         self.num_char = self.var_chars.get()
         self.label_num_char["text"] = self.num_char       
     def send_KB(self,event=None):
-        if self.flag_free:
+        if self.flag_free and not(self.flag_rec):
             self.flag_free = False
             message = self.txtbox.get(0., tk.END)
             message = message.replace('\n','')
@@ -280,16 +280,15 @@ class w_talk:
             self.flag_free = True
         else:
             print("now doing")
+    
     def rec_chenge(self,event=None):
         if self.flag_rec:
             print("push 録音終了")
-            self.flag_free = True
             self.flag_rec = False
             self.txtbox["state"] = tk.NORMAL
             self.button_rec["text"] = "録音開始"
         else:
             print("push 録音開始")
-            self.flag_free = False
             self.flag_rec = True
             self.txtbox.delete(0.,tk.END)
             self.txtbox["state"] = tk.DISABLED
@@ -299,11 +298,13 @@ class w_talk:
 
     def thf1_mic(self):     #thread function
         while self.flag_rec:
+            self.flag_free  = False
             stt.recording()
             text=stt.wav_to_text("output.wav")
             print(text)
-            self.talk(text)
-
+            time_wait = self.talk(text)
+            self.flag_free  = True     
+            time.sleep(time_wait*0.001)          
         else:
             print("flag_rec is False")
 
@@ -324,7 +325,7 @@ class w_talk:
         print(reply)
         if reply == "":
             print("no reply")
-            return
+            return 0
         textarea_write(self.reply,reply)
         self.change_image("open")
         events = tts.speech(message = reply,chara=self.num_char,params=self.params)  
@@ -336,8 +337,9 @@ class w_talk:
                     self.canvas.after(itr[0],self.change_image,"half")
                 elif itr[2] == "N":
                     self.canvas.after(itr[0],self.change_image,"close")
-        print("finish talk")
-        self.canvas.after(next(iter(reversed(events)))[0],self.change_image,"close")
+        time = next(iter(reversed(events)))[0]
+        self.canvas.after(time,self.change_image,"close")
+        return time
 
 
     def change_image(self,tag):

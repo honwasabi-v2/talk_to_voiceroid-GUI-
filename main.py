@@ -313,30 +313,40 @@ class w_talk:
             return reply
         else:
             if self.flag_rec:
-                return "上手く聞き取れませんでした"
+                return ""
             else:
                 return "何か入力してください"  
 
-        
-
-    def talk(self,text):    #get reply and write replyarea 
+    def talk(self,text,mause = True):    
+        #textarea write&say&kuchipaku
+        #paramater mause is kuchipaku,default ON 
         reply=self.send_text(text)
         print(reply)
+        if reply == "":
+            print("no reply")
+            return
         textarea_write(self.reply,reply)
         self.change_image("open")
-        events = tts.speech(message = reply,chara=self.num_char,params=self.params)
-        print(next(iter(reversed(events))))    
-        time.sleep(float(next(iter(reversed(events)))[0]*0.001))
+        events = tts.speech(message = reply,chara=self.num_char,params=self.params)  
+        if mause:
+            time_t = 0.0
+            for itr in events:
+                if itr[2] == "a" or itr[2] == "e":
+                    self.change_image("open")
+                elif itr[2] == "i"or itr[2] == "u"or itr[2] == "o":
+                    self.change_image("half")
+                elif itr[2] == "N":
+                    self.change_image("close")
+                time.sleep((float(itr[0])-time_t)*0.001)
+                time_t = itr[0]
+        else:
+            time.sleep(float(next(iter(reversed(events)))[0]*0.001))
         self.change_image("close")
-        return events
+
 
     def change_image(self,tag):
         self.canvas.lift(tag)
         self.canvas.update()
-
-    
-
-
 
 def resize_image(image):
     if image.width() > 300 or image.height() > 400:

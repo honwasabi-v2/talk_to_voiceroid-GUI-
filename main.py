@@ -329,19 +329,15 @@ class w_talk:
         self.change_image("open")
         events = tts.speech(message = reply,chara=self.num_char,params=self.params)  
         if mause:
-            time_t = 0.0
             for itr in events:
                 if itr[2] == "a" or itr[2] == "e":
-                    self.change_image("open")
+                    self.canvas.after(itr[0],self.change_image,"open")
                 elif itr[2] == "i"or itr[2] == "u"or itr[2] == "o":
-                    self.change_image("half")
+                    self.canvas.after(itr[0],self.change_image,"half")
                 elif itr[2] == "N":
-                    self.change_image("close")
-                time.sleep((float(itr[0])-time_t)*0.001)
-                time_t = itr[0]
-        else:
-            time.sleep(float(next(iter(reversed(events)))[0]*0.001))
-        self.change_image("close")
+                    self.canvas.after(itr[0],self.change_image,"close")
+        print("finish talk")
+        self.canvas.after(next(iter(reversed(events)))[0],self.change_image,"close")
 
 
     def change_image(self,tag):

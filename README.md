@@ -22,7 +22,7 @@ pythonとVOICEROIDは32bit版か64bit版で統一しないといけないよう�
 
 ●前準備    
 1.config.jsonを入力  
-&ensp; 1.1利用したいAPIのキーを取得し，"key"のうち利用するAPIの値"--key--"を書き換える（利用するAPIだけでok） 　　
+&ensp; 1.1利用したいAPIのキーを取得し，"key"のうち利用するAPIの値"--key--"を書き換える（利用するAPIだけでok)  
 &ensp; 1.2利用したいAPIを"api"の値を書き換える（"A3RT"もしくは"openAI"）  
 &ensp; 1.3画像を入れたい場合はfigureの"figure/dummy.png"に画像のパスを入力する（open:口開け，half:半開き，close:口閉じ）  
 2.main.pyを実行する（必要なライブラリはrequirement.txtに記載している.......多分）    

@@ -21,6 +21,7 @@ class w_talk:
         self.thread_mic = None  
         self.thread_say = None
         self.num_char = 0
+        self.kuchipaku = True
         
         #paramater_display 1~7
         self.var_volume = tk.DoubleVar()    
@@ -176,6 +177,23 @@ class w_talk:
         self.name_chars.grid(column=3, row=8, padx=10, pady=10)
         self.label_num_char.grid(column=4, row=8, padx=10, pady=10)
 
+        self.var_kuchipaku = tk.IntVar()    
+        self.var_kuchipaku.set(1)
+        self.name_kuchipaku = tk.Label(master, text="口パク")    
+        self.label_num_kuchipaku = tk.Label(master, text="ON")
+        self.scale_kuchipaku = tk.Scale(
+            master,
+            orient=tk.HORIZONTAL,
+            from_ = 0,to=1, 
+            resolution = 1,
+            variable = self.var_kuchipaku,
+            command=self.chenge_kuchipaku,
+            showvalue=False
+            )
+        self.scale_kuchipaku.grid(column=2, row=9, padx=10, pady=10)
+        self.name_kuchipaku.grid(column=3, row=9, padx=10, pady=10)
+        self.label_num_kuchipaku.grid(column=4, row=9, padx=10, pady=10)
+        
 
         #image load & resize
         self.tachie_close=tk.PhotoImage(file=config["figure"]["close"])
@@ -264,13 +282,23 @@ class w_talk:
         self.param_volume_m["text"] = self.params["master_volume"]
     def setter_char(self,event=None):
         self.num_char = self.var_chars.get()
-        self.label_num_char["text"] = self.num_char       
+        self.label_num_char["text"] = self.num_char  
+    def chenge_kuchipaku(self,event=None):
+        if(self.var_kuchipaku.get() == 1):
+            self.label_num_kuchipaku["text"] = "ON"
+            self.kuchipaku = True
+        elif(self.var_kuchipaku.get() == 0): 
+            self.label_num_kuchipaku["text"] = "OFF"
+            self.kuchipaku = False
+        else:
+            self.label_num_kuchipaku["text"] = "Err"
+            self.kuchipaku = True
     def send_KB(self,event=None):
         if self.flag_free and not(self.flag_rec):
             self.flag_free = False
             message = self.txtbox.get(0., tk.END)
             message = message.replace('\n','')
-            self.talk(message)
+            self.talk(message,mause=self.kuchipaku)
             self.txtbox.delete(0., tk.END)
             self.flag_free = True
         else:
@@ -297,7 +325,7 @@ class w_talk:
             stt.recording()
             text=stt.wav_to_text("output.wav")
             print(text)
-            time_wait = self.talk(text)
+            time_wait = self.talk(text,mause=self.kuchipaku)
             self.flag_free  = True     
             time.sleep(time_wait*0.001)          
         else:

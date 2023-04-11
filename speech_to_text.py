@@ -17,7 +17,7 @@ def recording():
     RATE = 44100
     
     SILENT = 0.6    #無音終了時間
-    threshold = 0.1 # 閾値 
+    threshold = 0.1 # 閾値
     
     print("recording......")
     
@@ -88,7 +88,6 @@ def wav_to_text(filename = FILE_PATH):
         print("上手く聞き取れませんでした")
         text = ""
     return text
-
 
 if __name__ == "__main__":
     recording()

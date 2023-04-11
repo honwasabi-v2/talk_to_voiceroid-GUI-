@@ -5,11 +5,12 @@ AIとVOICEROIDで会話するpythonプログラム（GUI版）
 ●内容  
 openAI.py:	openAIのAPIを利用して文字列から返答を用意し，返答を成形する  
 A3RT.py:		RECRUITのA3RT APIを利用して文字列から返答を用意し，返答を成形する 
-speech_to_text.py:	音声をpyaudioを用いて処理する．音声をoutput.wavに保存し，wavファイルからテキストにする．   
+speech_to_text.py:	音声をpyaudioを用いて処理する，音声をoutput.wavに保存し，wavファイルからテキストにする   
 text_to_speech.py:	pyvcroid2を用いて文字列をVOICEROIDでvoiceroid.wavに出力＆発声  
 main.py:	GUI他メイン処理  
 config.json:  APIのキー等の設定ファイル  
 requirements.txt:　必要なライブラリ一覧  
+figure: 口パク画像を入れる用のフォルダ，下のdummy.pngが入っている  
 dummy.png:  口パク表示のダミーファイル  
 
 ●実行に必要なもの  

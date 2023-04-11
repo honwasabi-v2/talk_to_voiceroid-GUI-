@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import pyaudio
 import wave
 import speech_recognition as sr
@@ -9,8 +7,6 @@ import numpy as np
 import time 
 
 FILE_PATH = "output.wav"
-    
-
 
 def recording():    
     # 音データフォーマット

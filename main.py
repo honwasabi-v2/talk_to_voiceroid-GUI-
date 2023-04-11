@@ -21,7 +21,6 @@ class w_talk:
         self.thread_mic = None  
         self.thread_say = None
         self.num_char = 0
-
         
         #paramater_display 1~7
         self.var_volume = tk.DoubleVar()    
@@ -192,7 +191,6 @@ class w_talk:
         self.canvas.create_image(0, 0, image=self.tachie_half, anchor=tk.NW,tag = "half")
         self.canvas.create_image(0, 0, image=self.tachie_close, anchor=tk.NW,tag = "close")
         
-        
         #keyboard input
         self.txtbox = tk.Text(master,width=80,height =15)
         self.txtbox.grid(column=0,columnspan=2,row=6,  rowspan=3,padx=10, pady=10)
@@ -214,9 +212,6 @@ class w_talk:
             command = self.rec_chenge
             )
         self.button_rec.grid(column=1, row=10, padx=10, pady=10)
-        
-
-
 
     def setter_volume(self,event=None):
         self.params["volume"] = self.var_volume.get()

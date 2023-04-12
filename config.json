@@ -18,5 +18,7 @@
         "half":"figure/dummy.png",
         "close":"figure/dummy.png"
     },
+    "lip_sync":true,
+    "charactor":0,
     "api":"openAI"
 }

@@ -1,7 +1,6 @@
 
 import threading
 import tkinter as tk
-import tkinter.ttk as ttk
 import json
 from importlib import import_module
 import speech_to_text as stt
@@ -16,13 +15,13 @@ class w_talk:
         self.master = master        
         module_api = import_module(config["api"])
         self.API = module_api.api(config["key"][config["api"]])
-        self.flag_rec = False
-        self.flag_free = True
-        self.thread_mic = None  
-        self.thread_say = None
+        self.flag_rec = False           #recording mode => true
+        self.flag_free = True           #reply waiting => false
+        self.thread_mic = None          #recording thread
         self.num_char = config["charactor"]
         self.lip =config["lip_sync"]
         self.config_window = None
+        self.thread_talk = None
 
 
                 
@@ -58,7 +57,7 @@ class w_talk:
             text="送信",
             command = self.send_KB
             )
-        self.button_send.grid(column=0, row=2, padx=10, pady=10)
+        self.button_send.grid(column=0, row=2)
 
         #mode chenge recording
         self.button_rec = tk.Button(
@@ -66,15 +65,24 @@ class w_talk:
             text="録音開始",
             command = self.rec_chenge
             )
-        self.button_rec.grid(column=1, row=2, padx=10, pady=10)
+        self.button_rec.grid(column=1, row=2)
 
         self.config_button = tk.Button(
             master,
             text = "config",
             command = self.create_config_window
             )
-        self.config_button.grid(column=2, row=2, padx=10, pady=10) 
+        self.config_button.grid(column=2, row=2) 
 
+        """
+        #debug thread  check
+        self.config_button = tk.Button(
+            master,
+            text = "thread check",
+            command = self.check_thread
+            )
+        self.config_button.grid(column=3, row=2) 
+        """
 
 
     def create_config_window(self,event= None):
@@ -255,7 +263,24 @@ class w_talk:
         self.config_window.label_num_char.grid(column=2, row=8, padx=10, pady=10)
 
 
-
+    """
+    #debug thread check function
+    def check_thread(self,event=None):
+        try:
+            if self.thread_mic.is_alive(): 
+                print("th1 alive")
+            else:
+                print("th1 isn't alive")
+        except:
+            print("th1 is None")
+        try:
+            if self.thread_talk.is_alive(): 
+                print("th2 alive")
+            else:
+                print("th2 isn't alive")
+        except:
+            print("th2 is None")
+    """
     def setter_volume(self,event=None):
         self.params["volume"] = self.config_window.var_volume.get()
         self.config_window.param_volume["text"] = self.params["volume"]
@@ -319,41 +344,55 @@ class w_talk:
 
     def send_KB(self,event=None):
         if self.flag_free and not(self.flag_rec):
-            self.flag_free = False
             message = self.txtbox.get(0., tk.END)
             message = message.replace('\n','')
-            self.talk(message,mouth=self.lip)
+            self.flag_free = False
+            self.thread_talk = threading.Thread(
+                target=self.thf2_talk,
+                args = (message,self.lip,),
+                daemon=True
+                )
+            self.thread_talk.start()
             self.txtbox.delete(0., tk.END)
-            self.flag_free = True
         else:
             print("now doing")
     
     def rec_chenge(self,event=None):
         if self.flag_rec:
-            print("push 録音終了")
             self.flag_rec = False
+            print("push 録音終了") 
             self.txtbox["state"] = tk.NORMAL
             self.button_rec["text"] = "録音開始"
         else:
             print("push 録音開始")
             self.flag_rec = True
+
             self.txtbox.delete(0.,tk.END)
             self.txtbox["state"] = tk.DISABLED
             self.button_rec["text"] = "録音終了"
-            self.thread_mic = threading.Thread(target=self.thf1_mic,daemon=True)
+            self.thread_mic = threading.Thread(
+                target=self.thf1_mic,
+                daemon=True
+                )
             self.thread_mic.start()
 
     def thf1_mic(self):     #thread function
+        print("thf1 start")
         while self.flag_rec:
-            self.flag_free  = False
-            stt.recording()
-            text=stt.wav_to_text("output.wav")
-            print(text)
-            time_wait = self.talk(text,mouth=self.lip)
-            self.flag_free  = True     
-            time.sleep(time_wait*0.001)          
+            if self.flag_free:
+                stt.recording()
+                message=stt.wav_to_text("output.wav")
+                print(message)
+                self.flag_free = False
+                self.thread_talk = threading.Thread(
+                    target=self.thf2_talk,
+                    args = (message,self.lip,),
+                    daemon=True
+                    )
+                self.thread_talk.start()  
+                self.thread_talk.join() 
         else:
-            print("flag_rec is False")
+            print("flag_rec :",self.flag_rec)
 
     def send_text(self,text):   #Forming sentences to be sent to the API
         if text != "" and text != "\r\n\ " :
@@ -365,12 +404,15 @@ class w_talk:
             else:
                 return "何か入力してください"  
 
-    def talk(self,text,mouth = True):    
+      
+    def thf2_talk(self,text,mouth = True):    
         #textarea write&say&lip_sync
         #paramater mouth is lip_sync,default ON 
+        print("thf2 start" )
         reply=self.send_text(text)
-        print(reply)
+        print("reply = ",reply)
         if reply == "":
+            self.flag_free = True
             print("no reply")
             return 0
         textarea_write(self.reply,reply)
@@ -378,23 +420,29 @@ class w_talk:
         events = tts.speech(message = reply,chara=self.num_char,params=self.params)  
         if mouth:
             for itr in events:
+                #print(itr)
                 if itr[2] == "a" or itr[2] == "e":
                     self.canvas.after(itr[0],self.change_image,"open")
                 elif itr[2] == "i"or itr[2] == "u"or itr[2] == "o":
                     self.canvas.after(itr[0],self.change_image,"half")
-                elif itr[2] == "N":
+                elif itr[2] == "N" or itr[2] == "--":
                     self.canvas.after(itr[0],self.change_image,"close")
         time = next(iter(reversed(events)))[0]
         self.canvas.after(time,self.change_image,"close")
+        self.master.after(time,self.change_flag_free,True)
         return time
-
+    
+    def change_flag_free(self,value):
+        #to use after method
+        self.flag_free = value
+        print("flag_free :",self.flag_free)
 
     def change_image(self,tag):
-        #現在の画像を全て消す
+        #delete all images.
         image_now_tag = self.canvas.find_all()
         self.canvas.delete(image_now_tag)
 
-        #新しくtagに沿った画像をキャンバスに描く
+        #rewrite tag image on Canvas.
         if tag == "open":
             self.canvas.create_image(0, 0, image=self.tachie_open, anchor=tk.NW,tag = "open")
         elif tag == "half":
@@ -404,7 +452,7 @@ class w_talk:
         else:
             print("error:main.py,chenge_image,tag is unknown")
 
-        #即反映
+        #now update.
         self.canvas.update()
         
 
